@@ -3,8 +3,8 @@ rad_xray_auto Release
 ***
 # 环境依赖
 > 
-Python3
-requirements.txt
+* Python3
+* requirements.txt
 ***
 # 运行方式
 > 
