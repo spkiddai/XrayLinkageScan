@@ -35,8 +35,8 @@ rad_xray_auto Release
 # 目录结构描述
 > 
 * ├──Readme.md                   #help
-* ├──main.py                     #主函数
-    - ├──run.py                  #执行函数
+* ├──main.py                     #执行函数
+    - ├──run.py                  #rad和xray运行函数
     - ├──yaml_write.py           #rad配置文件读写函数
     - ├──sys_config.yaml         #配置文件
 * ├──genca.py                    #xray证书生成文件
