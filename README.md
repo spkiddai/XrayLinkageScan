@@ -29,9 +29,9 @@ requirements.txt
   - chrome:                                     #chrome浏览器路径 注：rad报错时可配置
 - parse:                                        #Burplog默认解析配置
   - header:                                     #需要解析的header请求，可按照格式新增其他header
-    - - Host
-    - - Cookie
-    - - User-Agent
+    - Host
+    - Cookie
+    - User-Agent
 
 # 目录结构描述
 - ├──Readme.md                   #help
