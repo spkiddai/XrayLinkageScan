@@ -43,28 +43,29 @@ def rad_run(sys_config,target,datetime):
         radsh = [sys_config['rad']['name'],'-t',target,'-http-proxy',sys_config['xray']['proxy']]
     elif sys_config['system']['sys'] == 'linux' or sys_config['system']['sys'] == 'mac':
         radsh = ['./'+sys_config['rad']['name'], '-t', target, '-http-proxy', sys_config['xray']['proxy']]
-    with open('./log/rad'+datetime+'.log', 'w') as radlog:
+    with open('./log/rad '+datetime+'.log', 'w') as radlog:
         radsp = subprocess.Popen(radsh, stdout=radlog, start_new_session=True)
         radsp.communicate()
     return
 
-def xray_run(sys_config,datetime):
+def xray_run(sys_config,datetime,host):
     if os.path.exists('ca.crt') and os.path.exists('ca.key'):
         if sys_config['system']['sys'] == 'win':
             if req_proxy(sys_config):
                 killcmd = "taskkill /f /t /im {}".format(sys_config['xray']['name'])
                 subprocess.Popen(killcmd, stdout=subprocess.PIPE, shell=True)
-            xraysh = [sys_config['xray']['name'], 'webscan', '--listen', sys_config['xray']['proxy'], '--html-output',datetime + '.html']
+            xraysh = [sys_config['xray']['name'], 'webscan', '--listen', sys_config['xray']['proxy'], '--html-output',host+'.html']
         elif sys_config['system']['sys'] == 'linux' or sys_config['system']['sys'] == 'mac':
             if req_proxy(sys_config):
                 pidsh = """ps -ef|grep """+sys_config['xray']['name']+"""|grep -v "grep"|awk '{print $2}'"""
                 pid = subprocess.Popen(pidsh, stdout=subprocess.PIPE, shell=True)
                 killsh = "kill -9 " + pid.stdout.readline().decode()
                 subprocess.Popen(killsh, stdout=subprocess.PIPE, shell=True)
-            xraysh = ['./'+sys_config['xray']['name'], 'webscan', '--listen', sys_config['xray']['proxy'], '--html-output',datetime + '.html']
+            xraysh = ['./'+sys_config['xray']['name'], 'webscan', '--listen', sys_config['xray']['proxy'], '--html-output',host+'.html']
+
         else:
             raise Exception('[-] ERROR:请检查配置文件，确认操作系统类型！')
-        with open('./log/xray'+datetime+'.log', 'w') as xraylog:
+        with open('./log/xray '+datetime+'.log', 'w') as xraylog:
             subprocess.Popen(xraysh, stdout=xraylog)
             return
     else:
@@ -85,20 +86,20 @@ with open('sys_config.yaml', 'r', encoding='utf-8') as config_yaml:
 
 yw = yaml_write(sys_config)
 
-datetime = time.strftime("%Y%m%d%H%M%S", time.localtime())
+datetime = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 
 def log_run(arg):
-    xray_run(sys_config,datetime)
-    time.sleep(5)
     req_dict = parse_log(arg, sys_config)
     yw.log_write(req_dict)
+    xray_run(sys_config, datetime, req_dict['Host'])
+    time.sleep(10)
     target = req_dict['Host']+ req_dict['Path']
     rad_run(sys_config,target,datetime)
 
 def target_run(arg,id):
-    xray_run(sys_config,datetime)
-    time.sleep(5)
     host,target = parse_target(arg,id)
     yw.target_write(host)
+    xray_run(sys_config, datetime, host[0])
+    time.sleep(10)
     for t in target:
         rad_run(sys_config, t, datetime)
