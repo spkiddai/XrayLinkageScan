@@ -39,15 +39,14 @@ rad_xray_auto Release
     - ├──run.py                  #rad和xray运行函数
     - ├──yaml_write.py           #rad配置文件读写函数
     - ├──sys_config.yaml         #配置文件
-* ├──genca.py                    #xray证书生成文件
 * ├──rad_config.yaml.example     #rad配置文件示例
 * ├──xray_config.yaml.example    #xray配置文件示例
 * ├──config.yaml                 #xray配置文件
 * ├──rad_config.yml              #rad配置文件
 * └──requirements.txt            #Python3依赖
 ***
-# V1.0.0 版本内容更新
+# V2.0.0 版本内容更新
 > 
-1. 新功能	 单域名参数扫描
-2. 新功能	 域名文件参数扫描
-3. 新功能	 Burp导出log文件扫描
+1. 优化URL识别功能
+2. 增加证书验证功能
+3. 增加程序执行完成验证功能

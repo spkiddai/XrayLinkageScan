@@ -7,8 +7,8 @@
  * Date: 2021-3-10
 """
 
-import argparse
-from run import log_run,target_run
+import argparse,yaml
+from tool_run import tool_run
 
 print("""
                 __   .__    .___  .___      .__ 
@@ -26,6 +26,8 @@ github: https://github.com/spkiddai
 csdn: https://blog.csdn.net/u012994510
 """)
 
+run = tool_run()
+
 def main():
     info = "个人制作，仅供学习使用，不可用于商业用途，切勿将代码内容用于任何违法行为, 违者后果自负。"
     sysparser = argparse.ArgumentParser(description='rad and xray batch scanning',epilog=info)
@@ -34,11 +36,11 @@ def main():
     sysparser.add_argument('-f', '--file', dest='file', type=str, help='Target File')
     args = sysparser.parse_args()
     if args.target:
-        target_run(args.target,0)
+        run.target_run(args.target)
     elif args.file:
-        target_run(args.file,1)
+        run.file_run(args.file)
     elif args.log:
-        log_run(args.log)
+        run.log_run(args.log)
     else:
         sysparser.print_help()
 
