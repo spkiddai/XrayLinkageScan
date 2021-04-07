@@ -7,7 +7,7 @@
  * Date: 2021-3-10
 """
 
-import argparse,yaml
+import argparse
 from tool_run import tool_run
 
 print("""
@@ -34,6 +34,7 @@ def main():
     sysparser.add_argument('-l', '--log', dest='log', type=str, help='BurpSutie Export File')
     sysparser.add_argument('-t', '--target', dest='target', type=str, help='Target Name')
     sysparser.add_argument('-f', '--file', dest='file', type=str, help='Target File')
+    sysparser.add_argument('-k', '--kill', dest='kill', action='store_true', help='Kill Xray')
     args = sysparser.parse_args()
     if args.target:
         run.target_run(args.target)
@@ -41,6 +42,8 @@ def main():
         run.file_run(args.file)
     elif args.log:
         run.log_run(args.log)
+    elif args.kill:
+        run.kill_xray()
     else:
         sysparser.print_help()
 

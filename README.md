@@ -45,8 +45,8 @@ rad_xray_auto Release
 * ├──rad_config.yml              #rad配置文件
 * └──requirements.txt            #Python3依赖
 ***
-# V2.0.0 版本内容更新
+# V2.1 版本内容更新
 > 
-1. 优化URL识别功能
-2. 增加证书验证功能
-3. 增加程序执行完成验证功能
+1.新增-k参数，用于kill xray进程
+2.优化http、https检测函数
+3.解决存在的某些BUG

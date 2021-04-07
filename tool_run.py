@@ -26,6 +26,35 @@ class tool_run:
             sys_config = yaml.load(config_yaml, Loader=yaml.FullLoader)
         return sys_config
 
+    def kill_xray(self):
+        sys_proxy = self.sys_config['xray']['proxy'].split(':')
+        if self.sys_config['system']['sys'] == 'mac':
+            checksh = "lsof -i :" + sys_proxy[1] + "|awk 'NR==2 {print $1,$2}'"
+            checksp = subprocess.run(checksh, shell=True, stdout=subprocess.PIPE)
+            if checksp.stdout:
+                killsh = 'kill -9 '+checksp.stdout.decode().split()[1]
+                subprocess.run(killsh, shell=True, stdout=subprocess.PIPE)
+            else:
+                raise Exception('[-] ERROR:进程不存在')
+        elif self.sys_config['system']['sys'] == 'linux':
+            checksh = "netstat -auntp|grep ':" + sys_proxy[1] + "'|awk 'NR==2 {print $7}'"
+            checksp = subprocess.run(checksh, shell=True, stdout=subprocess.PIPE)
+            if checksp.stdout:
+                killsh = 'kill -9 '+checksp.stdout.decode().split('/')[0]
+                subprocess.run(killsh, shell=True, stdout=subprocess.PIPE)
+            else:
+                raise Exception('[-] ERROR:进程不存在')
+        elif self.sys_config['system']['sys'] == 'win':
+            check_sh = "netstat -ano|findstr "+sys_proxy
+            checksp = subprocess.run(check_sh, shell=True, stdout=subprocess.PIPE)
+            if checksp.stdout:
+                killsh = "taskkill /f /im" + self.sys_config['xray']['name']
+                subprocess.run(killsh, shell=True, stdout=subprocess.PIPE)
+            else:
+                raise Exception('[-] ERROR:进程不存在')
+        else:
+            raise Exception('[-] ERROR:请检查配置文件，确认操作系统类型！')
+
     def check_prot(self):
         sys_proxy = self.sys_config['xray']['proxy'].split(':')
         if self.sys_config['system']['sys'] == 'mac':
@@ -43,7 +72,7 @@ class tool_run:
             else:
                 print('[+] INFO:端口未占用,xray正常启动')
         elif self.sys_config['system']['sys'] == 'win':
-            check_sh = "netstat -ano|findstr 8888|findstr ^1:"
+            check_sh = "netstat -ano|findstr 8888"
             checksp = subprocess.run(check_sh, shell=True, stdout=subprocess.PIPE)
             if checksp.stdout:
                 raise Exception('[-] ERROR:{}端口占用'.format(sys_proxy[1]))
@@ -51,7 +80,6 @@ class tool_run:
                 print('[+] INFO:端口未占用,xray正常启动')
         else:
             raise Exception('[-] ERROR:请检查配置文件，确认操作系统类型！')
-
 
     def check_sys(self,sh):
         if self.sys_config['system']['sys'] == 'mac' or 'linux':
@@ -76,17 +104,16 @@ class tool_run:
             return
 
     def check_protocol(self,host):
-        if 'http://' or 'https://' not in host:
+        if 'http://' in host or 'https://' in host:
+            return host
+        else:
             try:
                 target = 'https://' + host
                 requests.get(target, timeout=5)
             except:
                 target = 'http://' + host
-                requests.get(target, timeout=5)
-            print('[+] INFO:目标地址为{}'.format(target))
             return target
-        else:
-            return host
+
 
     def rad_run(self, target, output,date):
         sh = [self.sys_config['rad']['name'], '-t', target, '-http-proxy', self.sys_config['xray']['proxy']]
@@ -107,17 +134,6 @@ class tool_run:
             time.sleep(5)
             print('[+] INFO:xray已经启动，log文件位置 log/xray_'+output+'_'+date+'.log')
         return xraysp
-
-    def kill_xray(self,output,date,xraysp):
-        while True:
-            if os.path.exists(output+'_'+date+'.html'):
-                print('[+] INFO:xray运行完成，进程结束')
-                xraysp.kill()
-                break
-            else:
-                print('[+] INFO:xray未运行完成')
-                time.sleep(60)
-                continue
 
     def parse_log(self,logpath):
         req_dict = {}
@@ -151,7 +167,6 @@ class tool_run:
         xraysp = self.xray_run(host,date)
         print('[+] INFO:爬取开始，目标地址为{}'.format(target))
         self.rad_run(target,host,date)
-        self.kill_xray(host,date,xraysp)
 
     def file_run(self,argv):
         date = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))
@@ -162,7 +177,6 @@ class tool_run:
         for t,h in zip(targets,hosts):
             print('[+] INFO:爬取开始，目标地址为{}'.format(t))
             self.rad_run(t, h, date)
-        self.kill_xray(file,date,xraysp)
 
     def log_run(self,argv):
         date = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))
@@ -172,4 +186,3 @@ class tool_run:
         target = self.check_protocol(req_dict['Host'] + req_dict['Path'])
         print('[+] INFO:爬取开始，目标地址为{}'.format(target))
         self.rad_run(target, req_dict['Host'], date)
-        self.kill_xray(req_dict['Host'], date,xraysp)
