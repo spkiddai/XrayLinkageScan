@@ -47,6 +47,6 @@ rad_xray_auto Release
 ***
 # V2.1 版本内容更新
 > 
-1.新增-k参数，用于kill xray进程
-2.优化http、https检测函数
-3.解决存在的某些BUG
+1. 新增-k参数，用于kill xray进程
+2. 优化http、https检测函数
+3. 解决存在的某些BUG
